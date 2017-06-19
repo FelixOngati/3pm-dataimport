@@ -11,11 +11,11 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.openxml4j.opc.OPCPackage;
-import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.apache.poi.ss.usermodel.DataFormatter;
+
+import com.opencsv.CSVWriter;
 
 /**
  *
@@ -63,8 +63,7 @@ public class ExcelReader {
                 for (int row = 3; row <= numberOfRows; row++) {
                     Row currentRow = sheet.getRow(row);
                     int numberOfCells = currentRow.getLastCellNum();
-                    String[] dataRows = new String[6];
-
+                    
                     int attributeOptionCombo = (int) currentRow.getCell(0, Row.CREATE_NULL_AS_BLANK).getNumericCellValue();
                     int organisationunitid = (int) currentRow.getCell(1, Row.CREATE_NULL_AS_BLANK).getNumericCellValue();
                     String period = currentRow.getCell(2, Row.CREATE_NULL_AS_BLANK).getStringCellValue();
@@ -73,7 +72,7 @@ public class ExcelReader {
                         int dataelementId = (int) sheet.getRow(1).getCell(cell, Row.CREATE_NULL_AS_BLANK).getNumericCellValue();
                         int categoryOptionComboId = (int) sheet.getRow(2).getCell(cell, Row.CREATE_NULL_AS_BLANK).getNumericCellValue();
                         int dataValue = (int) currentRow.getCell(cell, Row.CREATE_NULL_AS_BLANK).getNumericCellValue();
-
+                        String[] dataRows = new String[6];
                         dataRows[0] = String.valueOf(dataelementId);
                         dataRows[1] = period;
                         dataRows[2] = String.valueOf(organisationunitid);
@@ -97,9 +96,10 @@ public class ExcelReader {
 	 */
 	private static void writeRowToCSVFile(List<String[]> cleanRows) 
 		throws IOException {
-		CSVWriter csvWriter = new CSVWriter(new FileWriter(file));
-		csvWriter.writeAll(cleanRows);
-		csvWriter.close();
+            File newFile = new File("/home/fegati/NetBeansProjects/Twiga/output/targets.csv");
+        try (CSVWriter csvWriter = new CSVWriter(new FileWriter(newFile))) {
+            csvWriter.writeAll(cleanRows);
+        }
 }
 
 }
