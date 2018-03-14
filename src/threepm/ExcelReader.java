@@ -1,4 +1,4 @@
-package twiga;
+package threepm;
 
 import java.io.File;
 import org.apache.poi.ss.usermodel.Row;
@@ -60,28 +60,38 @@ public class ExcelReader {
                 Sheet sheet = workbook.getSheetAt(i);
                 int numberOfRows = sheet.getLastRowNum();
 
-                for (int row = 3; row <= numberOfRows; row++) {
+                for (int row = 4; row <= numberOfRows; row++) {
                     Row currentRow = sheet.getRow(row);
                     int numberOfCells = currentRow.getLastCellNum();
                     
-                    int attributeOptionCombo = (int) currentRow.getCell(0, Row.CREATE_NULL_AS_BLANK).getNumericCellValue();
-                    int organisationunitid = (int) currentRow.getCell(1, Row.CREATE_NULL_AS_BLANK).getNumericCellValue();
-                    String period = currentRow.getCell(2, Row.CREATE_NULL_AS_BLANK).getStringCellValue();
-
+                    String facility = currentRow.getCell(0,Row.CREATE_NULL_AS_BLANK).getStringCellValue();
+//                     System.out.println(facility);
+//                    System.exit(0);
+                    int mflcode = (int) currentRow.getCell(1,Row.CREATE_NULL_AS_BLANK).getNumericCellValue();
+                   
+                    int period = (int) currentRow.getCell(2,Row.CREATE_NULL_AS_BLANK).getNumericCellValue();
+                    
                     for (int cell = 3; cell <= numberOfCells; cell++) {
-                        int dataelementId = (int) sheet.getRow(1).getCell(cell, Row.CREATE_NULL_AS_BLANK).getNumericCellValue();
-                        int categoryOptionComboId = (int) sheet.getRow(2).getCell(cell, Row.CREATE_NULL_AS_BLANK).getNumericCellValue();
+                        String dataelementId = sheet.getRow(0).getCell(cell, Row.CREATE_NULL_AS_BLANK).getStringCellValue();
+                        String dataelementname = sheet.getRow(1).getCell(cell,Row.CREATE_NULL_AS_BLANK).getStringCellValue();
+                        String categoryOptionCombo = sheet.getRow(2).getCell(cell, Row.CREATE_NULL_AS_BLANK).getStringCellValue();
+                        String attributeOptionCombo = sheet.getRow(3).getCell(cell, Row.CREATE_NULL_AS_BLANK).getStringCellValue();
                         int dataValue = (int) currentRow.getCell(cell, Row.CREATE_NULL_AS_BLANK).getNumericCellValue();
-                        String[] dataRows = new String[6];
+                        if(dataValue  == 0)
+                            continue;
+                        String[] dataRows = new String[8];
                         dataRows[0] = String.valueOf(dataelementId);
-                        dataRows[1] = period;
-                        dataRows[2] = String.valueOf(organisationunitid);
-                        dataRows[3] = String.valueOf(categoryOptionComboId);
-                        dataRows[4] = String.valueOf(attributeOptionCombo);
-                        dataRows[5] = String.valueOf(dataValue);
+                        dataRows[1] = dataelementname;
+                        dataRows[2] = String.valueOf(period);
+                        dataRows[3] = facility;
+                        dataRows[4] = String.valueOf(mflcode);
+                        dataRows[5] = categoryOptionCombo;
+                        dataRows[6] = attributeOptionCombo;
+                        dataRows[7] = String.valueOf(dataValue);
+                        System.out.println(cell);
                         csvList.add(dataRows);
 //                        Pick from here after church  
-                        System.out.printf("%d\t%d\t%s\t%d\t%d\t%d\n", attributeOptionCombo, organisationunitid, period, dataelementId, categoryOptionComboId, dataValue);
+                        System.out.printf("%s\t%s\t%s\t%s\t%d\t%s\t%s\t%d\n", dataelementId,dataelementname,period,facility,mflcode,categoryOptionCombo,attributeOptionCombo,dataValue);
                     }
                 }
             }
@@ -96,7 +106,7 @@ public class ExcelReader {
 	 */
 	private static void writeRowToCSVFile(List<String[]> cleanRows) 
 		throws IOException {
-            File newFile = new File("/home/fegati/NetBeansProjects/Twiga/output/targets.csv");
+            File newFile = new File("/home/fegati/NetBeansProjects/Twiga/output/ucsf_c&t_oct-dec_results_data.csv");
         try (CSVWriter csvWriter = new CSVWriter(new FileWriter(newFile))) {
             csvWriter.writeAll(cleanRows);
         }
