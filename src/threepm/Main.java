@@ -18,7 +18,7 @@ public class Main {
      */
     public static void main(String[] args) {
         // TODO code application logic here
-        File excelFile = new File("/home/fegati/Documents/consultancy/IntelliSoft/3pm/data/UCSF/ucsf_care_treatment_Oct-Dec17.xlsx");
+        File excelFile = new File("/home/iita/Kelvin/JavaProjects/3pm-dataimport/data/UCSF/Oct17_Jan18_UCSF_ IPD.xlsx");
         ExcelReader er = new ExcelReader(excelFile);
         er.getRowAsListFromExcel();
     }

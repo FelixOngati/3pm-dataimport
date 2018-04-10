@@ -1,6 +1,7 @@
 package threepm;
 
 import java.io.File;
+
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -11,15 +12,17 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.ss.usermodel.DataFormatter;
 
 import com.opencsv.CSVWriter;
 
+
 /**
- *
  * @author the_fegati
+ * @author kevmurumba
  */
 public class ExcelReader {
 
@@ -30,7 +33,10 @@ public class ExcelReader {
         this.file = file;
     }
 
+    //Convert the excel into a List
     public void getRowAsListFromExcel() {
+
+        //Array List to store the excel data
         List<String[]> csvList = new ArrayList<>();
         FileInputStream fis;
         Workbook workbook = null;
@@ -55,6 +61,8 @@ public class ExcelReader {
             //get number of worksheets in the workbook
             int numberOfSheets = workbook.getNumberOfSheets();
 
+            orgUnits orgUnits=new orgUnits();
+
             //iterating over each workbook sheet
             for (int i = 0; i < numberOfSheets; i++) {
                 Sheet sheet = workbook.getSheetAt(i);
@@ -63,36 +71,33 @@ public class ExcelReader {
                 for (int row = 4; row <= numberOfRows; row++) {
                     Row currentRow = sheet.getRow(row);
                     int numberOfCells = currentRow.getLastCellNum();
-                    
-                    String facility = currentRow.getCell(0,Row.CREATE_NULL_AS_BLANK).getStringCellValue();
-//                     System.out.println(facility);
-//                    System.exit(0);
-                    int mflcode = (int) currentRow.getCell(1,Row.CREATE_NULL_AS_BLANK).getNumericCellValue();
-                   
-                    int period = (int) currentRow.getCell(2,Row.CREATE_NULL_AS_BLANK).getNumericCellValue();
-                    
-                    for (int cell = 3; cell <= numberOfCells; cell++) {
-                        String dataelementId = sheet.getRow(0).getCell(cell, Row.CREATE_NULL_AS_BLANK).getStringCellValue();
-                        String dataelementname = sheet.getRow(1).getCell(cell,Row.CREATE_NULL_AS_BLANK).getStringCellValue();
-                        String categoryOptionCombo = sheet.getRow(2).getCell(cell, Row.CREATE_NULL_AS_BLANK).getStringCellValue();
-                        String attributeOptionCombo = sheet.getRow(3).getCell(cell, Row.CREATE_NULL_AS_BLANK).getStringCellValue();
-                        int dataValue = (int) currentRow.getCell(cell, Row.CREATE_NULL_AS_BLANK).getNumericCellValue();
-                        if(dataValue  == 0)
-                            continue;
-                        String[] dataRows = new String[8];
-                        dataRows[0] = String.valueOf(dataelementId);
-                        dataRows[1] = dataelementname;
+
+                    String facility = currentRow.getCell(0, Row.CREATE_NULL_AS_BLANK).getStringCellValue();
+                    int mflcode = (int) currentRow.getCell(1, Row.CREATE_NULL_AS_BLANK).getNumericCellValue();
+                    int period = (int) currentRow.getCell(2, Row.CREATE_NULL_AS_BLANK).getNumericCellValue();
+
+                    String[] dataRows = new String[9];
+                    HtsUids dataElements = new HtsUids();
+                    int dataElementsLength = dataElements.IPD().length;
+                    dataRows[6] = dataElements.IPD()[24][0];
+                    dataRows[8] = dataElements.IPD()[25][0];
+                    dataRows[4] = orgUnits.getOrgUid(mflcode);
+                    for (int x = 3; x < dataElementsLength-2; x++) {
+                        for (int y = 0; y < 2; y++) {
+                            dataRows[0] = dataElements.IPD()[x][y];
+                            System.out.printf("%s  ", dataRows[0]);
+                        }
+                        int dataValue = (int) currentRow.getCell(x, Row.CREATE_NULL_AS_BLANK).getNumericCellValue();
                         dataRows[2] = String.valueOf(period);
                         dataRows[3] = facility;
-                        dataRows[4] = String.valueOf(mflcode);
-                        dataRows[5] = categoryOptionCombo;
-                        dataRows[6] = attributeOptionCombo;
                         dataRows[7] = String.valueOf(dataValue);
-                        System.out.println(cell);
                         csvList.add(dataRows);
-//                        Pick from here after church  
-                        System.out.printf("%s\t%s\t%s\t%s\t%d\t%s\t%s\t%d\n", dataelementId,dataelementname,period,facility,mflcode,categoryOptionCombo,attributeOptionCombo,dataValue);
+                        System.out.printf("%d\t%s\t%d\t%s\t%s\t%d\t%s\n", period, facility, mflcode,dataRows[4], dataRows[6], dataValue, dataRows[8]);
+                        System.out.printf("\n");
                     }
+
+                    System.out.printf(String.valueOf(orgUnits.organizationalUnit()));
+                    System.exit(0);
                 }
             }
             workbook.close();
@@ -100,16 +105,16 @@ public class ExcelReader {
         } catch (IOException | InvalidFormatException e) {
         }
     }
-    
+
     /*
-	 * Write the rows into the CSV file
+     * Write the rows into the CSV file
 	 */
-	private static void writeRowToCSVFile(List<String[]> cleanRows) 
-		throws IOException {
-            File newFile = new File("/home/fegati/NetBeansProjects/Twiga/output/ucsf_c&t_oct-dec_results_data.csv");
+    private static void writeRowToCSVFile(List<String[]> cleanRows)
+            throws IOException {
+        File newFile = new File("/home/iita/Kelvin/JavaProjects/3pm-dataimport/output/oct17_jan18_ucsf_ipd_results_data.csv");
         try (CSVWriter csvWriter = new CSVWriter(new FileWriter(newFile))) {
             csvWriter.writeAll(cleanRows);
         }
-}
+    }
 
 }
